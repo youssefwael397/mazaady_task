@@ -15,23 +15,24 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchCategories,
-  fetchCategoriesProperties,
+  fetchCategoryProperties,
   fetchModel,
-} from '../store/categoriesSlice';
+} from '../store/categorySlice';
+import { MazaadySelectInput } from './Inputs';
 
 const Form = () => {
   const [subCategoryId, setSubCategoryId] = useState('');
   const [category, setCategory] = useState('');
   const [subcategories, setSubcategories] = useState('');
-  const [subCategoriesChange, setSubCategoriesChange] = useState('');
-  const [properties, setProperties] = useState({});
+  const [subCategory, setSubCategory] = useState('');
+  const [propertiesValues, setPropertiesValues] = useState({});
   const [otherValue, setOtherValue] = useState('');
   const [child, setChild] = useState('');
   const [models, setModels] = useState('');
   const [selectedData, setSelectedData] = useState([]);
 
   const dispatch = useDispatch();
-  const { categorie, property, model, status, error } = useSelector(
+  const { categories, properties, model, status, error } = useSelector(
     (state) => state.categories
   );
 
@@ -43,14 +44,14 @@ const Form = () => {
 
   useEffect(() => {
     if (subCategoryId) {
-      dispatch(fetchCategoriesProperties(subCategoryId));
+      dispatch(fetchCategoryProperties(subCategoryId));
     }
   }, [dispatch, subCategoryId]);
 
   const handleCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
     setCategory(selectedCategoryId);
-    const selectedCategory = categorie.data?.categories.find(
+    const selectedCategory = categories.find(
       (cat) => cat.id === selectedCategoryId
     );
     setSubcategories(selectedCategory ? selectedCategory.children : []);
@@ -58,30 +59,26 @@ const Form = () => {
 
   const handleSubcategoryChange = (event) => {
     const selectedSubcategoryId = event.target.value;
-    setSubCategoriesChange(selectedSubcategoryId);
+    setSubCategory(selectedSubcategoryId);
     setSubCategoryId(selectedSubcategoryId);
     const selectedSubCategory = subcategories.find(
       (subcat) => subcat.id === selectedSubcategoryId
     );
-    setProperties(selectedSubCategory ? selectedSubCategory : '');
+    setPropertiesValues(selectedSubCategory ? selectedSubCategory : '');
   };
 
   const handleProcessTypeChange = (propertyId, event) => {
     const selectedValue = event.target.value;
 
-    setProperties((prevProperties) => ({
+    setPropertiesValues((prevProperties) => ({
       ...prevProperties,
       [propertyId]: selectedValue,
     }));
 
     if (selectedValue === 'other') {
       setOtherValue('');
-    } else if (
-      propertyId &&
-      property.data &&
-      Array.isArray(property.data.options)
-    ) {
-      const selectedProperty = property.data.options.find(
+    } else if (propertyId && properties.length) {
+      const selectedProperty = properties.find(
         (prop) => prop.id === propertyId
       );
       if (selectedProperty && selectedProperty.child) {
@@ -101,26 +98,15 @@ const Form = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const selectedCategory = categorie.data.categories.find(
-      (cat) => cat.id === category
-    );
+    const selectedCategory = categories.find((cat) => cat.id === category);
     const categoryName = selectedCategory ? selectedCategory.name : '';
 
     const selectedSubCategory = subcategories.find(
-      (subcat) => subcat.id === subCategoriesChange
+      (subcat) => subcat.id === subCategory
     );
     const subCategoryName = selectedSubCategory ? selectedSubCategory.name : '';
 
     const optionProperties = {};
-    // Object.keys(properties).forEach(propertyId => {
-    //     const selectedOption = property.data.find(prop => prop.id === parseInt(propertyId));
-    //     if (selectedOption) {
-    //         const selectedValue = selectedOption.options.find(opt => opt.id === parseInt(properties[propertyId]));
-    //         if (selectedValue) {
-    //             optionProperties[selectedOption.name] = selectedValue.name;
-    //         }
-    //     }
-    // });
 
     const newDataEntry = {
       category: categoryName,
@@ -133,8 +119,8 @@ const Form = () => {
     setSelectedData((prevData) => [...prevData, newDataEntry]);
 
     setCategory('');
-    setSubCategoriesChange('');
-    setProperties({});
+    setSubCategory('');
+    setPropertiesValues({});
     setOtherValue('');
     setChild('');
     setModels('');
@@ -146,57 +132,30 @@ const Form = () => {
         <form onSubmit={handleSubmit}>
           {/* Category */}
           <div className="mt-3">
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
-              <InputLabel id="demo-simple-select-standard-label">
-                Category
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={category}
-                onChange={handleCategoryChange}
-                label="Category"
-              >
-                {categorie.data?.categories.map((category) => (
-                  <MenuItem value={category.id} key={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <MazaadySelectInput
+              value={category}
+              label="Category"
+              onChange={handleCategoryChange}
+              items={categories}
+            />
           </div>
 
           {/* Subcategory */}
           <div className="mt-3">
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
-              <InputLabel id="demo-simple-select-standard-label">
-                {' '}
-                Sub Category{' '}
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={subCategoriesChange}
-                onChange={handleSubcategoryChange}
-                label="Sub Category"
-                disabled={category ? false : true}
-              >
-                {category &&
-                  subcategories &&
-                  subcategories.map((subcategory) => (
-                    <MenuItem value={subcategory.id} key={subcategory.id}>
-                      {subcategory.name}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
+            <MazaadySelectInput
+              value={subCategory}
+              label="Sub Category"
+              onChange={handleSubcategoryChange}
+              items={subcategories}
+              disabled={category ? false : true}
+            />
           </div>
 
           {/* Dynamic properties */}
           <div>
-            {subCategoriesChange &&
-              property.data &&
-              property.data.map((property) => (
+            {subCategory &&
+              properties.length &&
+              properties.map((property) => (
                 <div className="mt-3" key={property.id}>
                   <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
                     <InputLabel id={`prop-label-${property.id}`}>
@@ -205,7 +164,7 @@ const Form = () => {
                     <Select
                       labelId={`prop-label-${property.id}`}
                       id={`prop-select-${property.id}`}
-                      value={properties[property.id] || ''}
+                      value={propertiesValues[property.id] || ''}
                       onChange={(e) => handleProcessTypeChange(property.id, e)}
                       label={property.name}
                     >
@@ -230,27 +189,6 @@ const Form = () => {
                       />
                     )}
                   </FormControl>
-
-                  {/* {property.options?.map(opt => (
-                                    opt.child === true ? (
-                                        <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }} key={opt.id}>
-                                            <InputLabel id={`demo-simple-select-model-label`}>Model</InputLabel>
-                                            <Select
-                                                labelId={`demo-simple-select-model-label`}
-                                                id={`demo-simple-select-model`}
-                                                value={models}
-                                                onChange={handleModelChange}
-                                                label="Model"
-                                            >
-                                                {model.data && model.data.map(group => (
-                                                    (group.options && group.options.map(option => (
-                                                        <MenuItem value={option.id} key={option.id}>{option.name}</MenuItem>
-                                                    )))
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    ) : null
-                                ))} */}
                 </div>
               ))}
           </div>

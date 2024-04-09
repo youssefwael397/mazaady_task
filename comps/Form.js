@@ -15,84 +15,77 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchCategories,
+  updateSubCategories,
   fetchCategoryProperties,
   fetchModel,
 } from '../store/categorySlice';
 import { MazaadySelectInput } from './Inputs';
 
 const Form = () => {
-  const [subCategoryId, setSubCategoryId] = useState('');
   const [category, setCategory] = useState('');
-  const [subcategories, setSubcategories] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const [propertiesValues, setPropertiesValues] = useState({});
-  const [otherValue, setOtherValue] = useState('');
-  const [child, setChild] = useState('');
+  const [otherValues, setOtherValues] = useState({});
   const [models, setModels] = useState('');
   const [selectedData, setSelectedData] = useState([]);
 
   const dispatch = useDispatch();
-  const { categories, properties, model, status, error } = useSelector(
+  const { categories, subCategories, properties, status } = useSelector(
     (state) => state.categories
   );
 
+  // get categories at first rendering
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchCategories());
     }
   }, [dispatch, status]);
 
+  // get sub categories after category selected
   useEffect(() => {
-    if (subCategoryId) {
-      dispatch(fetchCategoryProperties(subCategoryId));
+    if (category) {
+      dispatch(updateSubCategories(category));
     }
-  }, [dispatch, subCategoryId]);
+  }, [dispatch, category]);
+
+  // get properties if sub category selected
+  useEffect(() => {
+    if (subCategory) {
+      dispatch(fetchCategoryProperties(subCategory));
+    }
+  }, [dispatch, subCategory]);
 
   const handleCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
     setCategory(selectedCategoryId);
-    const selectedCategory = categories.find(
-      (cat) => cat.id === selectedCategoryId
-    );
-    setSubcategories(selectedCategory ? selectedCategory.children : []);
   };
 
   const handleSubcategoryChange = (event) => {
     const selectedSubcategoryId = event.target.value;
     setSubCategory(selectedSubcategoryId);
-    setSubCategoryId(selectedSubcategoryId);
-    const selectedSubCategory = subcategories.find(
-      (subcat) => subcat.id === selectedSubcategoryId
-    );
-    setPropertiesValues(selectedSubCategory ? selectedSubCategory : '');
   };
 
-  const handleProcessTypeChange = (propertyId, event) => {
-    const selectedValue = event.target.value;
+  const handlePropertyChange = (event) => {
+    setPropertiesValues((pv) => {
+      return { ...pv, [event.target.name]: event.target.value };
+    });
 
-    setPropertiesValues((prevProperties) => ({
-      ...prevProperties,
-      [propertyId]: selectedValue,
-    }));
-
-    if (selectedValue === 'other') {
-      setOtherValue('');
-    } else if (propertyId && properties.length) {
-      const selectedProperty = properties.find(
-        (prop) => prop.id === propertyId
-      );
-      if (selectedProperty && selectedProperty.child) {
-        dispatch(fetchModel(selectedValue));
-      }
-    }
+    // if (selectedValue === 'other') {
+    //   setOtherValues('');
+    // } else {
+    //   const selectedProperty = properties.find(
+    //     (prop) => prop.id === event.target.id
+    //   );
+    //   if (selectedProperty && selectedProperty.child) {
+    //     dispatch(fetchModel(selectedValue));
+    //   }
+    // }
   };
 
   const handleOtherInputChange = (event) => {
-    setOtherValue(event.target.value);
-  };
-
-  const handleModelChange = (event) => {
-    setModels(event.target.value);
+    setOtherValues((pv) => {
+      return { ...pv, [event.target.id]: event.target.value };
+    });
   };
 
   const handleSubmit = (event) => {
@@ -101,29 +94,26 @@ const Form = () => {
     const selectedCategory = categories.find((cat) => cat.id === category);
     const categoryName = selectedCategory ? selectedCategory.name : '';
 
-    const selectedSubCategory = subcategories.find(
+    const selectedSubCategory = subCategories.find(
       (subcat) => subcat.id === subCategory
     );
     const subCategoryName = selectedSubCategory ? selectedSubCategory.name : '';
 
-    const optionProperties = {};
-
     const newDataEntry = {
       category: categoryName,
       subCategory: subCategoryName,
-      properties: optionProperties,
-      otherValue,
-      models,
+      ...propertiesValues,
+      ...otherValues,
     };
 
-    setSelectedData((prevData) => [...prevData, newDataEntry]);
+    setSelectedData(newDataEntry);
+    console.log(newDataEntry);
 
-    setCategory('');
-    setSubCategory('');
-    setPropertiesValues({});
-    setOtherValue('');
-    setChild('');
-    setModels('');
+    // setCategory('');
+    // setSubCategory('');
+    // setPropertiesValues({});
+    // setOtherValues({});
+    // setModels('');
   };
 
   return (
@@ -146,44 +136,41 @@ const Form = () => {
               value={subCategory}
               label="Sub Category"
               onChange={handleSubcategoryChange}
-              items={subcategories}
+              items={subCategories}
               disabled={category ? false : true}
             />
           </div>
 
           {/* Dynamic properties */}
           <div>
-            {subCategory &&
-              properties.length &&
+            {properties.length &&
               properties.map((property) => (
                 <div className="mt-3" key={property.id}>
                   <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
-                    <InputLabel id={`prop-label-${property.id}`}>
-                      {property.name}
-                    </InputLabel>
+                    <InputLabel id={property.id}>{property.name}</InputLabel>
                     <Select
-                      labelId={`prop-label-${property.id}`}
-                      id={`prop-select-${property.id}`}
-                      value={propertiesValues[property.id] || ''}
-                      onChange={(e) => handleProcessTypeChange(property.id, e)}
+                      labelId={property.id}
+                      id={property.name}
+                      name={property.name}
+                      value={propertiesValues[property.name] || ''}
+                      onChange={(e) => handlePropertyChange(e)}
                       label={property.name}
                     >
                       <MenuItem value="" key="select">
                         Select
                       </MenuItem>
-                      {property.options &&
-                        property.options.map((option) => (
-                          <MenuItem value={option.id} key={option.id}>
-                            {option.name}
-                          </MenuItem>
-                        ))}
-                      <MenuItem value="other">others</MenuItem>
+                      {property.options.map((option) => (
+                        <MenuItem value={option.name} key={option.id}>
+                          {option.name}
+                        </MenuItem>
+                      ))}
+                      <MenuItem value="other">other</MenuItem>
                     </Select>
-                    {properties[property.id] === 'other' && (
+                    {propertiesValues[property.name] === 'other' && (
                       <TextField
-                        id={`other-input-${property.id}`}
+                        id={`other-${property.name}`}
                         label={`write ${property.name}`}
-                        value={otherValue}
+                        value={otherValues[property.name]}
                         onChange={handleOtherInputChange}
                         sx={{ mt: 3 }}
                       />
@@ -198,7 +185,7 @@ const Form = () => {
             type="submit"
             className="bg-black text-white p-2 px-5 rounded-lg mt-6"
           >
-            ارسال
+            Search
           </button>
         </form>
 
@@ -207,19 +194,10 @@ const Form = () => {
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 750 }} aria-label="simple table">
               <TableBody>
-                {selectedData.map((data, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{data.category}</TableCell>
-                    <TableCell>{data.subCategory}</TableCell>
-                    {Object.entries(data.properties).map(
-                      ([propertyName, propertyValue]) => (
-                        <TableCell key={propertyName}>
-                          {propertyValue}
-                        </TableCell>
-                      )
-                    )}
-                    <TableCell>{data.otherValue}</TableCell>
-                    {/* <TableCell>{data.models}</TableCell> */}
+                {Object.entries(selectedData).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell>{key}</TableCell>
+                    <TableCell>{value}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

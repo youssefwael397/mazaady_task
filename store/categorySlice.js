@@ -58,12 +58,21 @@ const categoriesSlice = createSlice({
   name: 'categories',
   initialState: {
     categories: [],
+    subCategories: [],
     properties: [],
     model: { data: null },
     status: 'idle',
     error: null,
   },
-  reducers: {},
+  reducers: {
+    updateSubCategories: (state, action) => {
+      const selectedCategoryId = action.payload;
+      const selectedCategory = state.categories.find(
+        (cat) => cat.id === selectedCategoryId
+      );
+      state.subCategories = selectedCategory ? selectedCategory.children : [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       // fetchCategories
@@ -83,8 +92,8 @@ const categoriesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchCategoryProperties.fulfilled, (state, action) => {
-          state.status = 'succeeded';
-          state.properties = action.payload;
+        state.status = 'succeeded';
+        state.properties = action.payload;
       })
       .addCase(fetchCategoryProperties.rejected, (state, action) => {
         state.status = 'failed';
@@ -105,4 +114,5 @@ const categoriesSlice = createSlice({
   },
 });
 
+export const { updateSubCategories } = categoriesSlice.actions;
 export default categoriesSlice.reducer;

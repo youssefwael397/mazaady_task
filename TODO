@@ -1,0 +1,7 @@
+Form:
+  ☐ check if the property option selected => option.child is true => call get-options-child/(option_id)
+
+Bugs:
+  ✔ other property value is deleted when another property's other option selected @done(24-04-09 20:17)
+  ✔ ☐ displaying selected data in table @done(24-04-09 20:17)
+

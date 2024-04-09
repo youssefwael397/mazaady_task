@@ -29,7 +29,7 @@ export const MazaadySelectInput = ({
             </MenuItem>
           ))}
 
-        <MenuItem value="" key="other">
+        <MenuItem value="other" key="other">
           Other
         </MenuItem>
       </Select>

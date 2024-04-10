@@ -17,11 +17,10 @@ import {
   fetchCategories,
   updateSubCategories,
   fetchCategoryProperties,
-  fetchModel,
   fetchOptionChilds,
+  fetchChildOptionChilds,
 } from '../store/categorySlice';
-import { MazaadySelectInput } from './Inputs';
-import { prototype } from 'postcss/lib/previous-map';
+import { MazaadySelectInput, RenderOptions } from './Inputs';
 
 const Form = () => {
   const [category, setCategory] = useState('');
@@ -31,8 +30,14 @@ const Form = () => {
   const [selectedData, setSelectedData] = useState([]);
 
   const dispatch = useDispatch();
-  const { categories, subCategories, properties, optionChilds, status } =
-    useSelector((state) => state.categories);
+  const {
+    categories,
+    subCategories,
+    properties,
+    optionChilds,
+    childOptionChilds,
+    status,
+  } = useSelector((state) => state.categories);
 
   // get categories at first rendering
   useEffect(() => {
@@ -55,48 +60,6 @@ const Form = () => {
     }
   }, [dispatch, subCategory]);
 
-  useEffect(() => {
-    console.log('🚀 ~ useEffect ~ optionChilds:', optionChilds);
-  }, [dispatch, optionChilds]);
-
-  useEffect(() => {
-    console.log('🚀 ~ useEffect ~ propertiesValues:', propertiesValues);
-  }, [dispatch, propertiesValues]);
-
-  // get option childs
-  useEffect(() => {
-    for (const key in propertiesValues) {
-      // console.log(propertiesValues[key]);
-      for (const property in properties) {
-        if (
-          properties[property].name == key &&
-          properties[property].options[0].child == true
-        ) {
-          for (const option in properties[property].options) {
-            if (
-              properties[property].options[option].name == propertiesValues[key]
-            ) {
-              const optionId = properties[property].options[option].id;
-              console.log(properties[property].options[option].id);
-              dispatch(fetchOptionChilds(optionId));
-            }
-          }
-        }
-      }
-    }
-  }, [dispatch, properties, propertiesValues]);
-
-  // useEffect(() => {
-  //   optionChilds.map((option) => {
-  //     option.options.map(() => {
-  //       if (option.child) {
-  //         console.log('option.child');
-  //         dispatch(fetchOptionChilds(option.id));
-  //       }
-  //     });
-  //   });
-  // }, [dispatch, optionChilds, propertiesValues]);
-
   const handleCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
     setCategory(selectedCategoryId);
@@ -107,7 +70,43 @@ const Form = () => {
     setSubCategory(selectedSubcategoryId);
   };
 
-  const handlePropertyChange = (event) => {
+  const handlePropertyChange = (event, propertyType) => {
+    const propertyName = event.target.value;
+
+    if (propertyType == 'child_option') {
+      for (const optionChildIndex in optionChilds) {
+        for (const optionChildOptionIndex in optionChilds[optionChildIndex]
+          .options) {
+          if (
+            optionChilds[optionChildIndex].options[optionChildOptionIndex]
+              .name == propertyName
+          ) {
+            const optionId =
+              optionChilds[optionChildIndex].options[optionChildOptionIndex].id;
+            dispatch(fetchChildOptionChilds(optionId));
+          }
+        }
+      }
+    } else if (propertyType == 'option') {
+      for (const key in propertiesValues) {
+        for (const property in properties) {
+          if (
+            properties[property].name == key &&
+            properties[property].options[0].child == true
+          ) {
+            for (const option in properties[property].options) {
+              if (
+                properties[property].options[option].name ==
+                propertiesValues[key]
+              ) {
+                const optionId = properties[property].options[option].id;
+                dispatch(fetchOptionChilds(optionId));
+              }
+            }
+          }
+        }
+      }
+    }
     setPropertiesValues((pv) => {
       return { ...pv, [event.target.name]: event.target.value };
     });
@@ -118,26 +117,6 @@ const Form = () => {
       return { ...pv, [event.target.id]: event.target.value };
     });
   };
-
-  // const getOptionChilds = (optionId) => {
-  //   console.log('optionId', optionId)
-  //   // dispatch(fetchOptionChilds(optionId));
-  // };
-
-  // const isMatchingOption = (name) => {
-  //   const matchingOption = Object.entries(propertiesValues).find(
-  //     ([key, value]) => {
-  //       return value === name;
-  //     }
-  //   );
-
-  //   // If matching option is found, return true
-  //   if (matchingOption) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -153,18 +132,12 @@ const Form = () => {
       category: categoryName,
       subCategory: subCategoryName,
       ...propertiesValues,
+      ...optionChilds,
       ...otherValues,
-      // ...optionChilds,
     };
 
     setSelectedData(newDataEntry);
     console.log(newDataEntry);
-
-    // setCategory('');
-    // setSubCategory('');
-    // setPropertiesValues({});
-    // setOtherValues({});
-    // setModels('');
   };
 
   return (
@@ -194,76 +167,31 @@ const Form = () => {
 
           {/* Dynamic properties */}
           <div>
-            {properties.length &&
-              properties.map((property) => (
-                <div className="mt-3" key={property.id}>
-                  <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
-                    <InputLabel id={property.id}>{property.name}</InputLabel>
-                    <Select
-                      labelId={property.id}
-                      id={property.name}
-                      name={property.name}
-                      value={propertiesValues[property.name] || ''}
-                      onChange={(e) => handlePropertyChange(e)}
-                      label={property.name}
-                    >
-                      <MenuItem value="" key="select">
-                        Select
-                      </MenuItem>
-                      {property.options.map((option) => (
-                        <MenuItem value={option.name} key={option.id}>
-                          {option.name}
-                        </MenuItem>
-                      ))}
-                      <MenuItem value="other">other</MenuItem>
-                    </Select>
-                    {propertiesValues[property.name] === 'other' && (
-                      <TextField
-                        id={`other-${property.name}`}
-                        label={`write ${property.name}`}
-                        value={otherValues[property.name]}
-                        onChange={handleOtherInputChange}
-                        sx={{ mt: 3 }}
-                      />
-                    )}
-                  </FormControl>
-                </div>
-              ))}
+            <RenderOptions
+              handleOtherInputChange={handleOtherInputChange}
+              options={properties}
+              handlePropertyChange={(e) => handlePropertyChange(e, 'option')}
+              propertiesValues={propertiesValues}
+              otherValues={otherValues}
+            />
 
-            {optionChilds.map((property) => (
-              <div className="mt-3" key={property.id}>
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
-                  <InputLabel id={property.id}>{property.name}</InputLabel>
-                  <Select
-                    labelId={property.id}
-                    id={property.name}
-                    name={property.name}
-                    value={propertiesValues[property.name] || ''}
-                    onChange={(e) => handlePropertyChange(e)}
-                    label={property.name}
-                  >
-                    <MenuItem value="" key="select">
-                      Select
-                    </MenuItem>
-                    {property.options.map((option) => (
-                      <MenuItem value={option.name} key={option.id}>
-                        {option.name}
-                      </MenuItem>
-                    ))}
-                    <MenuItem value="other">other</MenuItem>
-                  </Select>
-                  {propertiesValues[property.name] === 'other' && (
-                    <TextField
-                      id={`other-${property.name}`}
-                      label={`write ${property.name}`}
-                      value={otherValues[property.name]}
-                      onChange={handleOtherInputChange}
-                      sx={{ mt: 3 }}
-                    />
-                  )}
-                </FormControl>
-              </div>
-            ))}
+            <RenderOptions
+              handleOtherInputChange={handleOtherInputChange}
+              options={optionChilds}
+              handlePropertyChange={(e) =>
+                handlePropertyChange(e, 'child_option')
+              }
+              propertiesValues={propertiesValues}
+              otherValues={otherValues}
+            />
+
+            <RenderOptions
+              handleOtherInputChange={handleOtherInputChange}
+              options={childOptionChilds}
+              handlePropertyChange={handlePropertyChange}
+              propertiesValues={propertiesValues}
+              otherValues={otherValues}
+            />
           </div>
 
           {/* Submit button */}

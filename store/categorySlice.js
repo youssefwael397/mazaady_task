@@ -37,6 +37,18 @@ export const fetchOptionChilds = createAsyncThunk(
   }
 );
 
+export const fetchChildOptionChilds = createAsyncThunk(
+  'categories/fetchChildOptionChilds',
+  async (optionId, { rejectWithValue }) => {
+    try {
+      const res = await CategoryService.getOptionChilds(optionId);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const categoriesSlice = createSlice({
   name: 'categories',
   initialState: {
@@ -44,6 +56,7 @@ const categoriesSlice = createSlice({
     subCategories: [],
     properties: [],
     optionChilds: [],
+    childOptionChilds: [],
     status: 'idle',
     error: null,
   },
@@ -100,6 +113,27 @@ const categoriesSlice = createSlice({
         state.optionChilds = [...action.payload];
       })
       .addCase(fetchOptionChilds.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      // optionChilds
+      .addCase(fetchChildOptionChilds.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchChildOptionChilds.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+
+        state.childOptionChilds.filter((child) => {
+          if (child.name == action.payload.name) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+
+        state.childOptionChilds = [...action.payload];
+      })
+      .addCase(fetchChildOptionChilds.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

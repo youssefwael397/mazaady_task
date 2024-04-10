@@ -39,6 +39,11 @@ const Form = () => {
     status,
   } = useSelector((state) => state.categories);
 
+  // watchers for testing
+  useEffect(() => {
+    console.log(optionChilds);
+  }, [optionChilds]);
+
   // get categories at first rendering
   useEffect(() => {
     if (status === 'idle') {
@@ -79,6 +84,8 @@ const Form = () => {
           .options) {
           if (
             optionChilds[optionChildIndex].options[optionChildOptionIndex]
+              .child == true &&
+            optionChilds[optionChildIndex].options[optionChildOptionIndex]
               .name == propertyName
           ) {
             const optionId =
@@ -88,21 +95,14 @@ const Form = () => {
         }
       }
     } else if (propertyType == 'option') {
-      for (const key in propertiesValues) {
-        for (const property in properties) {
+      for (const propertyIndex in properties) {
+        for (const optionIndex in properties[propertyIndex].options) {
           if (
-            properties[property].name == key &&
-            properties[property].options[0].child == true
+            properties[propertyIndex].options[optionIndex].child == true &&
+            properties[propertyIndex].options[optionIndex].name == propertyName
           ) {
-            for (const option in properties[property].options) {
-              if (
-                properties[property].options[option].name ==
-                propertiesValues[key]
-              ) {
-                const optionId = properties[property].options[option].id;
-                dispatch(fetchOptionChilds(optionId));
-              }
-            }
+            const optionId = properties[propertyIndex].options[optionIndex].id;
+            dispatch(fetchOptionChilds(optionId));
           }
         }
       }
@@ -132,7 +132,6 @@ const Form = () => {
       category: categoryName,
       subCategory: subCategoryName,
       ...propertiesValues,
-      ...optionChilds,
       ...otherValues,
     };
 

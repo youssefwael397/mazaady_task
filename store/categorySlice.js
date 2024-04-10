@@ -25,29 +25,12 @@ export const fetchCategoryProperties = createAsyncThunk(
   }
 );
 
-export const fetchModel = createAsyncThunk(
-  'categories/fetchModel',
-  async (id, { rejectWithValue }) => {
+export const fetchOptionChilds = createAsyncThunk(
+  'categories/fetchOptionChilds',
+  async (optionId, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `https://staging.mazaady.com/api/v1/get-options-child/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'private-key': '3%o8i}_;3D4bF]G5@22r2)Et1&mLJ4?$@+16',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-
-      const data = await response.json();
-
-      console.log(data);
-
-      return data;
+      const res = await CategoryService.getOptionChilds(optionId);
+      return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -60,7 +43,7 @@ const categoriesSlice = createSlice({
     categories: [],
     subCategories: [],
     properties: [],
-    model: { data: null },
+    optionChilds: [],
     status: 'idle',
     error: null,
   },
@@ -99,15 +82,24 @@ const categoriesSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
-      // categoriesModel
-      .addCase(fetchModel.pending, (state) => {
+      // optionChilds
+      .addCase(fetchOptionChilds.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchModel.fulfilled, (state, action) => {
+      .addCase(fetchOptionChilds.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.model = action.payload;
+
+        state.optionChilds.filter((child) => {
+          if (child.name == action.payload.name) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+
+        state.optionChilds = [...action.payload];
       })
-      .addCase(fetchModel.rejected, (state, action) => {
+      .addCase(fetchOptionChilds.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

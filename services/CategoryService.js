@@ -21,9 +21,9 @@ class CategoryService {
     }
   }
 
-  static async getPropertyOptions(subCategoryId) {
+  static async getOptionChilds(optionId) {
     try {
-      const url = `properties?cat=${subCategoryId}`;
+      const url = `get-options-child/${optionId}`;
       const response = await api.get(url);
       return response.data;
     } catch (error) {

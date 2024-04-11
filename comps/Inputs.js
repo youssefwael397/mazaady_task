@@ -14,9 +14,10 @@ export const MazaadySelectInput = ({
   ...inputProps
 }) => {
   return (
-    <FormControl variant="standard" sx={{ m: 1, minWidth: 400, maxWidth: 600 }}>
+    <FormControl variant="standard" className="w-2/3">
       <InputLabel id={label}>{label}</InputLabel>
       <Select
+        className="text-left"
         aria-labelledby={label}
         labelId={label}
         id={value}
@@ -56,12 +57,10 @@ export const RenderOptions = ({
     <>
       {options.map((property) => (
         <div className="mt-3" key={property.id}>
-          <FormControl
-            variant="standard"
-            sx={{ m: 1, minWidth: 400, maxWidth: 600 }}
-          >
+          <FormControl variant="standard" className="w-2/3">
             <InputLabel id={property.id}>{property.name}</InputLabel>
             <Select
+              className="text-left"
               labelId={property.id}
               aria-labelledby={property.id}
               id={property.name}

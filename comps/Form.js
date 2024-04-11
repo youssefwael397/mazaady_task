@@ -141,7 +141,7 @@ const Form = () => {
 
   return (
     <div className="my-7 ">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="mx-auto text-center">
         {/* Category */}
         <div className="mt-3">
           <MazaadySelectInput

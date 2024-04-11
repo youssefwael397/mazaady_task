@@ -2,7 +2,7 @@ import Form from '../comps/Form'
 
 const ProductForm = () => {
     return (
-        <div>
+        <div className='container'>
             <Form />
         </div>
     )

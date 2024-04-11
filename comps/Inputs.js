@@ -14,15 +14,17 @@ export const MazaadySelectInput = ({
   ...inputProps
 }) => {
   return (
-    <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
+    <FormControl variant="standard" sx={{ m: 1, minWidth: 400, maxWidth: 600 }}>
       <InputLabel id={label}>{label}</InputLabel>
       <Select
+        aria-labelledby={label}
         labelId={label}
         id={value}
         value={value}
         onChange={onChange}
         label={label}
         {...inputProps}
+        required
       >
         <MenuItem value="" key="select">
           Select
@@ -30,7 +32,7 @@ export const MazaadySelectInput = ({
 
         {items.length &&
           items.map((item) => (
-            <MenuItem value={item.id} key={item.id}>
+            <MenuItem aria-labelledby={item.name} value={item.id} key={item.id}>
               {item.name}
             </MenuItem>
           ))}
@@ -54,15 +56,20 @@ export const RenderOptions = ({
     <>
       {options.map((property) => (
         <div className="mt-3" key={property.id}>
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 550 }}>
+          <FormControl
+            variant="standard"
+            sx={{ m: 1, minWidth: 400, maxWidth: 600 }}
+          >
             <InputLabel id={property.id}>{property.name}</InputLabel>
             <Select
               labelId={property.id}
+              aria-labelledby={property.id}
               id={property.name}
               name={property.name}
               value={propertiesValues[property.name] || ''}
               onChange={(e) => handlePropertyChange(e)}
               label={property.name}
+              required
             >
               <MenuItem value="" key="select">
                 Select
@@ -81,6 +88,7 @@ export const RenderOptions = ({
                 value={otherValues[property.name]}
                 onChange={handleOtherInputChange}
                 sx={{ mt: 3 }}
+                required
               />
             )}
           </FormControl>

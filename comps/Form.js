@@ -140,83 +140,81 @@ const Form = () => {
   };
 
   return (
-    <div className="my-7 flex items-center justify-center">
-      <div>
-        <form onSubmit={handleSubmit}>
-          {/* Category */}
-          <div className="mt-3">
-            <MazaadySelectInput
-              value={category}
-              label="Category"
-              onChange={handleCategoryChange}
-              items={categories}
-            />
-          </div>
-
-          {/* Subcategory */}
-          <div className="mt-3">
-            <MazaadySelectInput
-              value={subCategory}
-              label="Sub Category"
-              onChange={handleSubcategoryChange}
-              items={subCategories}
-              disabled={category ? false : true}
-            />
-          </div>
-
-          {/* Dynamic properties */}
-          <div>
-            <RenderOptions
-              handleOtherInputChange={handleOtherInputChange}
-              options={properties}
-              handlePropertyChange={(e) => handlePropertyChange(e, 'option')}
-              propertiesValues={propertiesValues}
-              otherValues={otherValues}
-            />
-
-            <RenderOptions
-              handleOtherInputChange={handleOtherInputChange}
-              options={optionChilds}
-              handlePropertyChange={(e) =>
-                handlePropertyChange(e, 'child_option')
-              }
-              propertiesValues={propertiesValues}
-              otherValues={otherValues}
-            />
-
-            <RenderOptions
-              handleOtherInputChange={handleOtherInputChange}
-              options={childOptionChilds}
-              handlePropertyChange={handlePropertyChange}
-              propertiesValues={propertiesValues}
-              otherValues={otherValues}
-            />
-          </div>
-
-          {/* Submit button */}
-          <button
-            type="submit"
-            className="bg-black text-white p-2 px-5 rounded-lg mt-6"
-          >
-            Search
-          </button>
-        </form>
-
-        {/* Display selected data */}
-        <div className="mt-7">
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 750 }} aria-label="simple table">
-              <TableBody>
-                {Object.entries(selectedData).map(([key, value]) => (
-                  <TableRow key={key}>
-                    <TableCell>{key}</TableCell>
-                    <TableCell>{value}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+    <div className="my-7 ">
+      <form onSubmit={handleSubmit}>
+        {/* Category */}
+        <div className="mt-3">
+          <MazaadySelectInput
+            value={category}
+            label="Category"
+            onChange={handleCategoryChange}
+            items={categories}
+          />
         </div>
+
+        {/* Subcategory */}
+        <div className="mt-3">
+          <MazaadySelectInput
+            value={subCategory}
+            label="Sub Category"
+            onChange={handleSubcategoryChange}
+            items={subCategories}
+            disabled={category ? false : true}
+          />
+        </div>
+
+        {/* Dynamic properties */}
+        <div>
+          <RenderOptions
+            handleOtherInputChange={handleOtherInputChange}
+            options={properties}
+            handlePropertyChange={(e) => handlePropertyChange(e, 'option')}
+            propertiesValues={propertiesValues}
+            otherValues={otherValues}
+          />
+
+          <RenderOptions
+            handleOtherInputChange={handleOtherInputChange}
+            options={optionChilds}
+            handlePropertyChange={(e) =>
+              handlePropertyChange(e, 'child_option')
+            }
+            propertiesValues={propertiesValues}
+            otherValues={otherValues}
+          />
+
+          <RenderOptions
+            handleOtherInputChange={handleOtherInputChange}
+            options={childOptionChilds}
+            handlePropertyChange={handlePropertyChange}
+            propertiesValues={propertiesValues}
+            otherValues={otherValues}
+          />
+        </div>
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          className="bg-black text-white p-2 px-5 rounded-lg mt-6"
+        >
+          Search
+        </button>
+      </form>
+
+      {/* Display selected data */}
+      <div className="mt-7">
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 750 }} aria-label="simple table">
+            <TableBody>
+              {Object.entries(selectedData).map(([key, value]) => (
+                <TableRow key={key}>
+                  <TableCell>{key}</TableCell>
+                  <TableCell>{value}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </div>
   );

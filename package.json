@@ -5,17 +5,26 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.24.4",
+    "@babel/preset-react": "^7.24.1",
+    "@babel/preset-typescript": "^7.24.1",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@reduxjs/toolkit": "^2.2.3",
+    "@testing-library/react": "^15.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
     "antd": "^5.16.1",
     "axios": "^1.6.8",
+    "jest-environment-jsdom": "^29.7.0",
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18",
@@ -25,9 +34,12 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0"
   }

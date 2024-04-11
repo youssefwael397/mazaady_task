@@ -7,7 +7,7 @@ export const ProfileSection = () => {
     return (
         <>
             <div className="p-6 bg-white rounded-3xl">
-                <Image src="/../users/hala2.png" width={100} height={100} className='' />
+                <Image src="/users/hala2.png" width={100} height={100} className='' />
                 <h3 className={`${styles.title} my-3`}>Hala Ahmed</h3>
                 <p className={styles.paragragh}>I am Hala Ahmed, I am the owner of the local brand called Beauty which is for Mackeup and Skin Care.</p>
                 <div className="grid grid-cols-3 gap-4 max-xl:grid-cols-3 max-xl:gap-3 mt-5 text-xs">

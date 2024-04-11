@@ -122,7 +122,7 @@ export const QrCode = () => {
 
                         <div className={`${styles.border_QR} rounded-2xl mt-4 p-6 text-center`}>
                             <div className="bg-white rounded-2xl py-4">
-                                <Image src="/../logo2.png" width={140} height={100} className='mx-auto' />
+                                <Image src="/logo2.png" width={140} height={100} className='mx-auto' />
                                 <h3 className={`${styles.title} my-3`}>Hala Ahmed</h3>
                                 <div className="flex justify-center mb-3">
                                     <QRCode value="https://worldbarcodes.com/qr-code/"
